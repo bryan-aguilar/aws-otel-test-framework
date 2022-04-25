@@ -64,8 +64,10 @@ func createBatchMap(maxBatches int, testCases []TestCaseInfo) (map[string][]stri
 		"EKS_FARGATE":       {},
 	}
 
-	if numBatches-len(nonParallelTestSet) <= 0 {
+	if numBatches == 1 {
 		nonParallelTestSet = map[string][]TestCaseInfo{}
+	} else if numBatches-len(nonParallelTestSet) <= 0 {
+		numBatches = 1
 	} else {
 		numBatches -= len(nonParallelTestSet)
 	}
@@ -94,25 +96,32 @@ func createBatchMap(maxBatches int, testCases []TestCaseInfo) (map[string][]stri
 	// assign containers to a batch
 	batchMap := make(map[string][]string)
 
-	i := 0
+	batch := 0
 	// non-parallel tests
 	for _, npts := range nonParallelTestSet {
 		nptsStringArray, err := generateBachValuesStringArray(npts)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create non parallel test set string array: %w", err)
 		}
-		batchMap[fmt.Sprintf("batch%d", i)] = nptsStringArray
-		i++
+		id := fmt.Sprintf("batch%d", batch)
+		batchMap[id] = append(batchMap[id], nptsStringArray...)
+		if batch < maxBatches {
+			batch++
+		}
 	}
 
 	//assign following batches
-	for ; i < numBatches+len(nonParallelTestSet); i++ {
+	for i := 0; i < numBatches; i++ {
 		batchValueStringArray, err := generateBachValuesStringArray(testContainers.Value.([]TestCaseInfo))
 		if err != nil {
 			return nil, fmt.Errorf("failed to create batchValueString: %w", err)
 		}
-		batchMap[fmt.Sprintf("batch%d", i)] = batchValueStringArray
+		id := fmt.Sprintf("batch%d", batch)
+		batchMap[id] = append(batchMap[id], batchValueStringArray...)
 		testContainers = testContainers.Next()
+		if batch < maxBatches {
+			batch++
+		}
 	}
 
 	return batchMap, nil
