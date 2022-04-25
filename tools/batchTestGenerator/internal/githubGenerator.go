@@ -64,13 +64,16 @@ func createBatchMap(maxBatches int, testCases []TestCaseInfo) (map[string][]stri
 		"EKS_FARGATE":       {},
 	}
 
-	numBatches -= len(nonParallelTestSet)
+	if numBatches-len(nonParallelTestSet) <= 0 {
+		nonParallelTestSet = map[string][]TestCaseInfo{}
+	} else {
+		numBatches -= len(nonParallelTestSet)
+	}
 
 	// circular linked list to distribute values
 	// we reach for a circular LL to evenly distrubute values since no
 	// weighting is being done during the batching process. We just want the
 	// easiest way to distribute test cases.
-	// numBatches - 1 since a batch is already defined above.
 	testContainers := ring.New(numBatches)
 	for i := 0; i < numBatches; i++ {
 		testContainers.Value = make([]TestCaseInfo, 0)
