@@ -4,12 +4,12 @@ import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Version } from 'aws-cdk-lib/aws-lambda';
-import { KubernetesVersion, Nodegroup } from 'aws-cdk-lib/aws-eks';
+import { Cluster, ICluster, KubernetesVersion, Nodegroup } from 'aws-cdk-lib/aws-eks';
 import { CpuArchitecture } from 'aws-cdk-lib/aws-ecs';
 
 
 export class ClusterStack extends NestedStack {
-  cluster : eks.Cluster | eks.FargateCluster
+  cluster : Cluster
 
   constructor(scope: Construct, id: string, props: ClusterStackProps) {
     super(scope, id, props);

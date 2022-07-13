@@ -1,0 +1,30 @@
+./batchTestGenerator github  --testCaseFilePath=./testcases-demo.json \
+--maxBatch=2 \
+--eksarm64amp=cortex.instance.endpoint \
+--eksarm64cluster=arm64-cluster-name \
+--eksarm64region=us-east-2 \
+--include=ECS,EKS_ARM64,EKS_ADOT_OPERATOR
+
+
+./batchTestGenerator github  --testCaseFilePath=./testcases-demo.json \
+--maxBatch=2 \
+--eksarm64amp=cortex.instance.endpoint \
+--eksarm64cluster=arm64-cluster-name \
+--eksarm64region=us-east-2 \
+--include=ECS,EKS_ARM64,EKS_ADOT_OPERATOR \
+| awk -F "::" '{print $3}' | tail -n 1 | prettyjson
+
+
+./batchTestGenerator github  --testCaseFilePath=./testcases-demo.json \
+--maxBatch=2 \
+--eksarm64amp=cortex.instance.endpoint \
+--eksarm64cluster=arm64-cluster-name \
+--eksarm64region=us-east-2 \
+--include=ECS,EKS_ARM64,EKS_ADOT_OPERATOR,EC2 \
+| awk -F "::" '{print $3}' | tail -n 1 | prettyjson
+
+
+./batchTestGenerator local --testCaseFilePath=./testcases.json \
+--output=../../terraform \
+--maxJobs=10 \
+--include=EKS,EKS_ADOT_OPERATOR,EKS_FARGATE 

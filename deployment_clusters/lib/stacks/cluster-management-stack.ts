@@ -1,17 +1,18 @@
 import { Stack, StackProps, aws_eks as eks, aws_ec2 as ec2} from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { Construct } from 'constructs';
-import {FargateNested} from './fargate-stack';
-import {ClusterStack} from './cluster-stack';
-import {validateClusters} from './utils/parse' 
+import {FargateNested} from './nested_clusters/fargate-stack';
+import {ClusterStack} from './nested_clusters/cluster-stack';
+import {validateClusters} from '../utils/parse' 
 import { readFileSync, writeFileSync } from 'fs';
-import {ManagedPolicy} from 'aws-cdk-lib/aws-iam';
+import { AwsAuth, Cluster, ICluster } from "aws-cdk-lib/aws-eks";
+import {ManagedPolicy, Role} from 'aws-cdk-lib/aws-iam';
 const yaml = require('js-yaml')
 
 
 
 export class ClusterManagementStack extends Stack {
-  clusterMap = new Map();
+  clusterMap = new Map<string,eks.Cluster>();
 
   constructor(scope: Construct, id: string, props: ParentStackProps) {
     super(scope, id, props);
@@ -59,6 +60,7 @@ export class ClusterManagementStack extends Stack {
     //   throw new Error('No clusters being defined in the yaml file')
     // }
     validateClusters(data['clusters'])
+
     // const bigMap = parseData(data['clusters'])
     for(const [key, value] of Object.entries(data['clusters'])){
       const val = Object(value)
@@ -72,21 +74,17 @@ export class ClusterManagementStack extends Stack {
         node_size: String(val["node_size"])
         
       })
+      const auth = new AwsAuth(this,"clusterAuth"+key,{
+        cluster: newStack.cluster,
+      })
+      auth.addMastersRole(Role.fromRoleName(this,"eks-admin-role","Admin"))
       this.clusterMap.set(key, newStack.cluster)
     }
-
-    
-
-
   }
 
-  getCluster(clusterName: string) : eks.Cluster | eks.FargateCluster {
-    return this.clusterMap.get(clusterName)
+  getCluster(clusterName: string) : eks.Cluster {
+    return this.clusterMap.get(clusterName)!
   }
-
-  
-
-  
 }
 
 
