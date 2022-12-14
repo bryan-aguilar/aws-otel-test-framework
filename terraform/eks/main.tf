@@ -200,6 +200,7 @@ module "adot_operator" {
   kubeconfig          = local_file.kubeconfig.filename
   operator_repository = var.operator_repository
   operator_tag        = var.operator_tag
+  namespace = kubernetes_namespace.aoc_ns.metadata[0].name
 }
 
 

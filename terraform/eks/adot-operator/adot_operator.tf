@@ -29,12 +29,16 @@ variable "operator_repository" {
 variable "operator_tag" {
 }
 
+variable "namespace" {
+  type = string
+}
+
 resource "helm_release" "adot-operator" {
   name = "adot-operator-${var.testing_id}"
 
   repository = "https://open-telemetry.github.io/opentelemetry-helm-charts"
   chart      = "opentelemetry-operator"
-
+  namespace  = var.namespace
   values = [
     file("./adot-operator/adot-operator-values.yaml")
   ]
@@ -50,6 +54,6 @@ resource "helm_release" "adot-operator" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl wait --kubeconfig=${var.kubeconfig} --timeout=5m --for=condition=available deployment opentelemetry-operator-controller-manager"
+    command = "kubectl wait --kubeconfig=${var.kubeconfig} --timeout=5m --for=condition=available deployment opentelemetry-operator-controller-manager -n ${var.namespace}"
   }
 }
