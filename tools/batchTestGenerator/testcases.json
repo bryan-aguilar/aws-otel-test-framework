@@ -4,7 +4,7 @@
 			"type": "EKS",
 			"targets": [
 				{
-					"name": "qiu-collector-ci-amd64-1-22",
+					"name": "anna-collector-ci-amd64-1-22",
 					"region": "us-west-2",
 					"excluded_tests": [
 						"containerinsights_eks_containerd"
